@@ -46,6 +46,7 @@ const DD_USER_DOMAIN = process.env.DD_USER_DOMAIN || '';
 const DD_USER_EMAILS = (process.env.DD_USER_EMAILS || '')
   .split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 const DD_USER_LIMIT  = parseInt(process.env.DD_USER_LIMIT || '0', 10); // 0 = no limit
+const ADMIN_PIN      = process.env.ADMIN_PIN || '1234'; // set in .env to change
 
 const PORT            = parseInt(process.env.PORT || '3000', 10);
 const REFRESH_INTERVAL_MS = parseInt(process.env.REFRESH_INTERVAL_MS || String(30 * 60 * 1000), 10); // default 30 min
@@ -453,6 +454,25 @@ const server = http.createServer((req, res) => {
     doRefresh(); // fire and forget
     res.writeHead(202);
     return res.end(JSON.stringify({ status: 'refresh_started' }));
+  }
+
+  // ── API: POST /api/verify-pin ──
+  if (url.pathname === '/api/verify-pin' && req.method === 'POST') {
+    res.setHeader('Content-Type', 'application/json');
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { pin } = JSON.parse(body);
+        const valid = String(pin).trim() === String(ADMIN_PIN).trim();
+        res.writeHead(200);
+        return res.end(JSON.stringify({ valid }));
+      } catch (_) {
+        res.writeHead(400);
+        return res.end(JSON.stringify({ valid: false }));
+      }
+    });
+    return;
   }
 
   // ── API: GET /api/status ──

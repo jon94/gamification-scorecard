@@ -74,9 +74,28 @@
         </span>
       </div>
     </div>
+    <button class="btn-admin-lock" id="btn-admin-lock" onclick="toggleAdminLock()" title="Admin mode — click to unlock circle editing">
+      🔒
+    </button>
     <button class="btn-refresh" onclick="handleRefresh()">↻ Refresh</button>
   </div>
 </header>
+
+<!-- PIN entry modal -->
+<div class="pin-backdrop" id="pin-backdrop" onclick="closePinModal()"></div>
+<div class="pin-modal" id="pin-modal">
+  <div class="pin-icon">🔒</div>
+  <div class="pin-title">Admin Mode</div>
+  <div class="pin-subtitle">Enter the admin PIN to unlock circle editing</div>
+  <input class="pin-input" id="pin-input" type="password" maxlength="20"
+    placeholder="Enter PIN" autocomplete="off"
+    onkeydown="if(event.key==='Enter')submitPin(); if(event.key==='Escape')closePinModal()">
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-actions">
+    <button class="pin-btn-cancel" onclick="closePinModal()">Cancel</button>
+    <button class="pin-btn-submit" onclick="submitPin()">Unlock</button>
+  </div>
+</div>
 
 <!-- Tab bar -->
 <div class="tabs">

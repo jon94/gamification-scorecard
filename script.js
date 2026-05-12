@@ -20,6 +20,74 @@ const IS_LOCAL_SERVER = (
 let DATA      = null;
 let IS_SAMPLE = false;
 
+// ─── Admin PIN state ─────────────────────────────────────────────────────────
+let isAdminMode = sessionStorage.getItem('adminMode') === 'true';
+
+function toggleAdminLock() {
+  if (isAdminMode) {
+    isAdminMode = false;
+    sessionStorage.removeItem('adminMode');
+    updateLockIcon();
+    refreshGridBody();
+  } else {
+    openPinModal();
+  }
+}
+
+function openPinModal() {
+  document.getElementById('pin-backdrop').classList.add('open');
+  document.getElementById('pin-modal').classList.add('open');
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-input').value = '';
+  setTimeout(() => document.getElementById('pin-input').focus(), 50);
+}
+
+function closePinModal() {
+  document.getElementById('pin-backdrop').classList.remove('open');
+  document.getElementById('pin-modal').classList.remove('open');
+}
+
+function submitPin() {
+  const pin = document.getElementById('pin-input').value.trim();
+  if (!pin) return;
+  fetch('/api/verify-pin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pin })
+  })
+  .then(r => r.json())
+  .then(({ valid }) => {
+    if (valid) {
+      isAdminMode = true;
+      sessionStorage.setItem('adminMode', 'true');
+      closePinModal();
+      updateLockIcon();
+      refreshGridBody();
+    } else {
+      document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+      document.getElementById('pin-input').value = '';
+      document.getElementById('pin-input').focus();
+    }
+  })
+  .catch(() => {
+    document.getElementById('pin-error').textContent = 'Could not verify PIN';
+  });
+}
+
+function updateLockIcon() {
+  const btn = document.getElementById('btn-admin-lock');
+  if (!btn) return;
+  if (isAdminMode) {
+    btn.textContent = '🔓';
+    btn.title = 'Admin mode ON — click to lock';
+    btn.classList.add('unlocked');
+  } else {
+    btn.textContent = '🔒';
+    btn.title = 'Admin mode — click to unlock circle editing';
+    btn.classList.remove('unlocked');
+  }
+}
+
 // ─── Boot ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   if (IS_LOCAL_SERVER) {
@@ -35,7 +103,7 @@ function bootFromServer() {
   setFetchIndicator(true);
   fetchServerData();
   // Auto-poll server status to keep "last updated" fresh
-  setInterval(fetchServerData, 5 * 60 * 1000); // re-fetch every 5 min
+  setInterval(fetchServerData, 30 * 1000); // re-fetch every 30 sec — keeps all viewers in sync
 }
 
 function fetchServerData() {
@@ -141,7 +209,7 @@ function renderAll() {
   document.getElementById('hdr-org-name').textContent = DATA.meta.org_name;
   document.getElementById('hdr-last-updated').textContent = formatDate(DATA.meta.last_updated);
 
-  // Render both views
+  updateLockIcon();
   renderGrid();
   renderAwardsPanel();
   renderScoreboard();
@@ -463,21 +531,27 @@ function buildFGRow(user, rank, allCols, colSections) {
       td.textContent = '✓';
     } else if (ms.type === 'manual') {
       td.textContent = '○';
-      td.classList.add('fg-manual');
-      td.title = 'Click to mark done — ' + ms.name;
-      td.addEventListener('click', () => {
-        user.milestones[ms.id] = true;
-        td.textContent = '✓';
-        td.classList.replace('fg-todo', 'fg-done');
-        td.classList.remove('fg-manual');
-        recalculateUser(user);
-        updateFGRowStats(row, user);
-        renderScoreboard();
-        if (IS_LOCAL_SERVER) {
-          fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: true }) }).catch(() => {});
-        }
-      });
+      if (isAdminMode) {
+        td.classList.add('fg-manual');
+        td.title = 'Click to mark done — ' + ms.name;
+        td.addEventListener('click', () => {
+          user.milestones[ms.id] = true;
+          td.textContent = '✓';
+          td.classList.replace('fg-todo', 'fg-done');
+          td.classList.remove('fg-manual');
+          recalculateUser(user);
+          updateFGRowStats(row, user);
+          renderScoreboard();
+          if (IS_LOCAL_SERVER) {
+            fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: true }) }).catch(() => {});
+          } else {
+            saveLocalOverride(user.email, ms.id, true);
+          }
+        });
+      } else {
+        td.title = ms.name + ' — unlock admin mode to edit';
+      }
     } else {
       td.innerHTML = '<span class="fg-lock">🔒</span>';
     }
