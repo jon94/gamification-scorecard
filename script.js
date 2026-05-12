@@ -735,9 +735,9 @@ const TIER_PRIZES = {
 };
 
 const SPECIAL_PRIZES = [
-  { icon: '🏆', label: 'First to reach Platinum',        prize: 'Exclusive Datadog Backpack' },
-  { icon: '🤖', label: 'First Bits AI SRE Investigation', prize: 'Bits AI Collector\'s Badge'  },
-  { icon: '📊', label: 'Top Scorer',                  prize: '$100 Gift Voucher'           },
+  { icon: '📜', label: 'First Datadog Fundamentals Cert', prize: 'Exclusive Datadog Backpack', milestoneId: 'cert_fundamentals' },
+  { icon: '🔭', label: 'First Datadog APM Cert',          prize: 'Datadog Premium Kit',        milestoneId: 'cert_apm'          },
+  { icon: '🪵', label: 'First Log Management Cert',       prize: '$30 Gift Voucher',            milestoneId: 'cert_logs'         },
 ];
 
 function renderAwardsPanel() {
@@ -801,25 +801,9 @@ function renderAwardsPanel() {
   specLabel.textContent = 'SPECIAL PRIZES';
   panel.appendChild(specLabel);
 
-  // First Platinum: sort by _platinum_achieved_at timestamp if available, else GC order
-  const platinumUsers = users
-    .filter(u => u.certification === 'platinum')
-    .sort((a, b) => {
-      const ta = a.milestones?._platinum_achieved_at;
-      const tb = b.milestones?._platinum_achieved_at;
-      if (ta && tb) return new Date(ta) - new Date(tb);
-      if (ta) return -1;
-      if (tb) return 1;
-      return b.total_gc - a.total_gc;
-    });
-  const bitsAiUsers = users.filter(u => u.milestones?.bits_ai_sre);
-  const topGCUser   = users.length > 0 ? users.reduce((a,b) => b.total_gc > a.total_gc ? b : a) : null;
-
-  SPECIAL_PRIZES.forEach((sp, i) => {
-    let winner = null;
-    if (i === 0) winner = platinumUsers[0];
-    if (i === 1) winner = bitsAiUsers[0];
-    if (i === 2) winner = topGCUser;
+  SPECIAL_PRIZES.forEach((sp) => {
+    // First user in the (cert-sorted) list who has earned this advanced cert
+    const winner = users.find(u => u.milestones?.[sp.milestoneId]) || null;
 
     const item = document.createElement('div');
     item.className = 'special-prize-card' + (winner ? ' sp-claimed' : '');

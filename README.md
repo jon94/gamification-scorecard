@@ -22,7 +22,7 @@ Live data is pulled from the Datadog Audit Trail and Usage Metrics APIs and auto
 | 🥇 Gold | Silver + Sessions 4–6 + Notebook + Bits AI SRE | Datadog Hoodie |
 | 💎 Platinum | Gold + Learning Path + Case Created | $50 Gift Card |
 
-Special prizes: First to Platinum (Backpack), First Bits AI SRE (Collector's Badge), Top Scorer ($100 Gift Voucher).
+Special prizes: First Datadog Fundamentals Cert (Backpack), First APM Cert (Premium Kit), First Log Management Cert ($30 Gift Voucher).
 
 ## Quick start
 
