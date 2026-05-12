@@ -210,7 +210,6 @@ function renderAll() {
   updateLockIcon();
   renderGrid();
   renderAwardsPanel();
-  renderScoreboard();
 }
 
 // ─── View switching ──────────────────────────────────────────────────────────
@@ -544,8 +543,7 @@ function buildFGRow(user, rank, allCols, colSections) {
           recalculateUser(user);
           updateFGRowStats(row, user);
           renderAwardsPanel();
-          renderScoreboard();
-          if (IS_LOCAL_SERVER) {
+                  if (IS_LOCAL_SERVER) {
             fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
               body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: newVal }) }).catch(() => {});
           } else {
@@ -623,7 +621,6 @@ function toggleManualCell(user, ms, td) {
   td.classList.toggle('not-done', !newVal);
   td.textContent = newVal ? '✓' : '';
   recalculateUser(user);
-  renderScoreboard();
   // Update row stats in new flipped grid
   const row = document.querySelector(`.fg-user-row[data-email="${user.email}"]`);
   if (row) updateFGRowStats(row, user);
@@ -1068,7 +1065,6 @@ function manualMarkDone(email, milestoneId) {
   recalculateUser(user);
   renderGrid();
   renderAwardsPanel();
-  renderScoreboard();
 
   if (IS_LOCAL_SERVER) {
     // Server persists to overrides.json automatically
