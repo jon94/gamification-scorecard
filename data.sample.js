@@ -18,7 +18,7 @@ window.DD_SAMPLE_DATA = {
       { id: "notebook_created",  name: "Notebook Authored",                 icon: "📓", points: 100, type: "audit", audit_query: "@action:created @evt.name:Notebook" },
       { id: "case_created",      name: "Case Created",                      icon: "📋", points: 100, type: "audit", audit_query: "@action:created @evt.name:Case Management" },
       { id: "user_invited",      name: "Team Member Invited",               icon: "👥", points: 100, type: "audit", audit_query: "@action:created @evt.name:Access Management @asset.type:user" },
-      { id: "bits_ai_sre",       name: "Trigger Bits AI SRE Investigation", icon: "🤖", points: 200, type: "audit", audit_query: "@action:created @evt.name:Bits AI SRE" }
+      { id: "bits_ai_sre",       name: "Trigger Bits AI SRE Investigation", icon: "🤖", points: 200, type: "audit", audit_query: "@evt.name:Bits AI SRE" }
     ],
     org: [
       { id: "infra_hosts",     name: "Infra Hosts",        icon: "🖥️",  type: "metric", metric: "datadog.estimated_usage.hosts" },
