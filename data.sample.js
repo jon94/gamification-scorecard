@@ -17,7 +17,6 @@ window.DD_SAMPLE_DATA = {
       { id: "slo_created",       name: "SLO Created",                       icon: "🎯", points: 200, type: "audit", audit_query: "@action:created @evt.name:SLO" },
       { id: "notebook_created",  name: "Notebook Authored",                 icon: "📓", points: 100, type: "audit", audit_query: "@action:created @evt.name:Notebook" },
       { id: "case_created",      name: "Case Created",                      icon: "📋", points: 100, type: "audit", audit_query: "@action:created @evt.name:"Case Management"" },
-      { id: "user_invited",      name: "Team Member Invited",               icon: "👥", points: 100, type: "audit", audit_query: "@action:created @evt.name:"Access Management" @asset.type:user" },
       { id: "bits_ai_sre",       name: "Trigger Bits AI SRE Investigation", icon: "🤖", points: 200, type: "audit", audit_query: "@evt.name:Bits AI SRE" }
     ],
     org: [
@@ -70,7 +69,7 @@ window.DD_SAMPLE_DATA = {
     { id: "platinum", name: "Platinum", icon: "💎", color: "#a78bfa", gc_bonus: 500,
       required: ["session_1", "session_2", "session_3", "dashboard_created", "monitor_created", "slo_created",
                  "session_4", "session_5", "session_6", "notebook_created", "bits_ai_sre",
-                 "learning_path", "case_created", "user_invited"],
+                 "learning_path", "case_created"],
       special_count: 2 }
   ],
 
