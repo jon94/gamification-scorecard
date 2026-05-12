@@ -1,0 +1,13 @@
+{
+  "name": "datadog-adoption-scorecard",
+  "version": "1.0.0",
+  "description": "Gamified Datadog adoption dashboard — certification grid + scoreboard",
+  "scripts": {
+    "start":   "node server.js",
+    "refresh": "node refresh.js",
+    "deploy":  "node refresh.js && zip -r ../dd-adoption-scorecard.zip index.html style.css script.js data.js data.sample.js overrides.json package.json README.md && echo 'ZIP ready: ../dd-adoption-scorecard.zip'"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
+}

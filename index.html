@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datadog Adoption Scorecard</title>
+
+  <!-- Try live data first; on error fall back to sample -->
+  <script>
+    window.__dataLoaded = false;
+    window.__isSample = false;
+    function loadSampleData() {
+      // data.js failed to load — mark as sample mode
+      window.__isSample = true;
+    }
+  </script>
+  <script src="data.js" onerror="loadSampleData()"></script>
+  <script src="data.sample.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Demo mode banner -->
+<div id="demo-banner">
+  🎯 DEMO MODE — Run <code>node refresh.js</code> with your Datadog API keys to load live data.
+  <span>Sample data is shown below.</span>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="header-logo">
+    <!-- Datadog logo SVG -->
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Datadog">
+      <defs>
+        <linearGradient id="ddg1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#632CA6"/>
+          <stop offset="100%" style="stop-color:#774CBE"/>
+        </linearGradient>
+      </defs>
+      <rect width="200" height="200" rx="28" fill="url(#ddg1)"/>
+      <!-- Dog silhouette simplified -->
+      <g fill="#fff" opacity="0.95">
+        <!-- Body -->
+        <ellipse cx="100" cy="118" rx="52" ry="38"/>
+        <!-- Head -->
+        <ellipse cx="120" cy="80" rx="34" ry="30"/>
+        <!-- Ear left -->
+        <ellipse cx="96" cy="58" rx="14" ry="18" transform="rotate(-15 96 58)"/>
+        <!-- Ear right -->
+        <ellipse cx="144" cy="56" rx="12" ry="16" transform="rotate(15 144 56)"/>
+        <!-- Eye -->
+        <circle cx="127" cy="74" r="5" fill="#632CA6"/>
+        <circle cx="126" cy="73" r="2" fill="#fff"/>
+        <!-- Nose -->
+        <ellipse cx="138" cy="88" rx="7" ry="5" fill="#e0a0c0"/>
+        <!-- Tail -->
+        <path d="M52 100 Q30 80 40 60 Q45 50 52 60 Q44 78 58 95 Z" fill="#fff" opacity="0.9"/>
+        <!-- Paws -->
+        <ellipse cx="75"  cy="148" rx="14" ry="10"/>
+        <ellipse cx="125" cy="150" rx="14" ry="10"/>
+      </g>
+    </svg>
+    <h1 class="header-title">Datadog <span>Adoption Scorecard</span></h1>
+  </div>
+
+  <div class="header-meta">
+    <div>
+      <div class="header-org">Org: <strong id="hdr-org-name">Loading…</strong></div>
+      <div class="header-updated">
+        Last updated: <span id="hdr-last-updated">—</span>
+        <span id="hdr-fetch-status" class="fetch-status" style="display:none">
+          <span class="fetch-spinner">⟳</span> Fetching data…
+        </span>
+      </div>
+    </div>
+    <button class="btn-refresh" onclick="handleRefresh()">↻ Refresh</button>
+  </div>
+</header>
+
+<!-- Tab bar -->
+<div class="tabs">
+  <button class="tab active" id="tab-grid"       onclick="showView('grid')">📋 Certification Grid</button>
+  <button class="tab"        id="tab-scoreboard" onclick="showView('scoreboard')">🏆 Scoreboard</button>
+</div>
+
+<!-- VIEW: Certification Grid -->
+<div id="view-grid" class="view active">
+  <div class="grid-layout">
+    <div class="grid-main">
+      <div id="cert-grid-container" class="cert-grid-wrap">
+        <!-- Rendered by script.js -->
+      </div>
+    </div>
+    <div class="awards-panel" id="awards-panel">
+      <!-- Rendered by script.js -->
+    </div>
+  </div>
+</div>
+
+<!-- VIEW: Scoreboard -->
+<div id="view-scoreboard" class="view">
+  <div id="scoreboard-container">
+    <!-- Rendered by script.js -->
+  </div>
+</div>
+
+<!-- Tooltip overlay -->
+<div class="tooltip-overlay" id="tooltip"></div>
+
+<!-- Evidence modal -->
+<div class="ev-backdrop" id="ev-backdrop" onclick="closeEvidenceModal()"></div>
+<div class="ev-modal" id="ev-modal" role="dialog" aria-modal="true">
+  <button class="ev-close" onclick="closeEvidenceModal()" aria-label="Close">×</button>
+  <div id="ev-modal-content"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

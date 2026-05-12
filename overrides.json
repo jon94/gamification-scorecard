@@ -1,0 +1,17 @@
+{
+  "_comment": "Manually set milestone completions per user. Keys are email addresses. Set true/false per milestone ID.",
+  "karl.kh.wong@hkjc.org.hk": {
+    "training_part1": true,
+    "training_part2": false,
+    "tags_applied": true,
+    "team_training": false,
+    "presentation": false
+  },
+  "david.sk.wong@hkjc.org.hk": {
+    "training_part1": true,
+    "training_part2": false,
+    "tags_applied": true,
+    "team_training": false,
+    "presentation": false
+  }
+}

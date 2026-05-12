@@ -1,0 +1,17 @@
+# Secrets — never commit
+.env
+
+# Generated data — contains live Datadog data and API responses
+data.js
+evidence.json
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store
+.env.swp
