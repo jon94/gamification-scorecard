@@ -705,10 +705,30 @@ function typeLabel(type) {
 // ─── AWARDS PANEL ────────────────────────────────────────────────────────────
 // ─── Awards config — prizes attached to each cert tier ───────────────────────
 const TIER_PRIZES = {
-  bronze:   { prize: 'Datadog Sticker Pack',   emoji: '🎁' },
-  silver:   { prize: 'Datadog T-Shirt',         emoji: '👕' },
-  gold:     { prize: 'Datadog Hoodie',           emoji: '🧥' },
-  platinum: { prize: '$50 Gift Card',            emoji: '💳' },
+  bronze:   {
+    name:   'Bronze',
+    prize:  'Datadog Sticker Pack', emoji: '🎁',
+    bullets: ['Attend Session 1 (Observability Overview)', 'Create a Dashboard', 'Configure an Alert'],
+    prefix:  'Complete all of:',
+  },
+  silver:   {
+    name:   'Silver',
+    prize:  'Datadog T-Shirt', emoji: '👕',
+    bullets: ['Complete all 3 Day 1 sessions', 'Create your first SLO'],
+    prefix:  'Bronze, plus:',
+  },
+  gold:     {
+    name:   'Gold',
+    prize:  'Datadog Hoodie', emoji: '🧥',
+    bullets: ['Complete all 3 Day 2 sessions', 'Write a Notebook', 'Trigger a Bits AI SRE Investigation'],
+    prefix:  'Silver, plus:',
+  },
+  platinum: {
+    name:   'Platinum',
+    prize:  '$50 Gift Card', emoji: '💳',
+    bullets: ['Complete a Persona Based Learning Path', 'Create a Case', 'Invite a Team Member to Datadog'],
+    prefix:  'Gold, plus:',
+  },
 };
 
 const SPECIAL_PRIZES = [
@@ -747,26 +767,10 @@ function renderAwardsPanel() {
   const allMs = INDIVIDUAL_SECTIONS.flatMap(s => DATA.milestones[s] || []);
 
   DATA.certification_tiers.forEach(tier => {
-    const p = TIER_PRIZES[tier.id] || { prize: '', emoji: '🎁' };
+    const p           = TIER_PRIZES[tier.id] || { name: tier.id, prize: '', emoji: '🎁', bullets: [], prefix: 'Complete:' };
+    const tierName    = p.name || tier.name || (tier.id.charAt(0).toUpperCase() + tier.id.slice(1));
     const earnedCount = certCounts[tier.id] || 0;
-
-    // Group requirements by section
-    const day1Ids  = (DATA.milestones.day1  || []).map(m => m.id);
-    const day2Ids  = (DATA.milestones.day2  || []).map(m => m.id);
-    const coreIds  = (DATA.milestones.core  || []).map(m => m.id);
-
-    const reqGroups = [];
-    const reqCore   = tier.required.filter(id => coreIds.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
-    const reqDay1   = tier.required.filter(id => day1Ids.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
-    const reqDay2   = tier.required.filter(id => day2Ids.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
-    const reqOther  = tier.required.filter(id => !coreIds.includes(id) && !day1Ids.includes(id) && !day2Ids.includes(id))
-                        .map(id => allMs.find(m=>m.id===id)).filter(Boolean);
-
-    const reqLines = [];
-    if (reqCore.length)  reqLines.push(reqCore.map(m=>`${m.icon} ${m.name}`).join(', '));
-    if (reqDay1.length)  reqLines.push(`Day 1: ${reqDay1.map(m=>m.icon).join('')} ${reqDay1.length} session${reqDay1.length>1?'s':''}`);
-    if (reqDay2.length)  reqLines.push(`Day 2: ${reqDay2.map(m=>m.icon).join('')} ${reqDay2.length} session${reqDay2.length>1?'s':''}`);
-    if (reqOther.length) reqLines.push(reqOther.map(m=>`${m.icon} ${m.name}`).join(', '));
+    const bulletHtml  = p.bullets.map(b => `<li>${b}</li>`).join('');
 
     const card = document.createElement('div');
     card.className = 'tier-card tier-card-' + tier.id;
@@ -774,12 +778,13 @@ function renderAwardsPanel() {
       <div class="tier-card-header">
         <span class="tier-icon">${tier.icon}</span>
         <div class="tier-card-info">
-          <span class="tier-name" style="color:${tier.color}">${tier.name}</span>
+          <span class="tier-name" style="color:${tier.color}">${tierName}</span>
           <span class="tier-prize">${p.emoji} ${p.prize}</span>
         </div>
         <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} GC</span>
       </div>
-      <div class="tier-reqs">${reqLines.join('<br>')}</div>
+      <div class="tier-reqs-label">${p.prefix}</div>
+      <ul class="tier-bullets">${bulletHtml}</ul>
       <div class="tier-progress">
         <span class="tier-earned" style="color:${tier.color}">${earnedCount} champion${earnedCount!==1?'s':''} earned</span>
       </div>

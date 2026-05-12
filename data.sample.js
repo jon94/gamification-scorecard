@@ -57,17 +57,17 @@ window.DD_SAMPLE_DATA = {
 
   certification_tiers: [
     // Bronze: complete Day 1 opening session + first dashboard + first monitor
-    { id: "bronze",   icon: "🥉", color: "#cd7f32", gc_bonus: 200,
+    { id: "bronze",   name: "Bronze",   icon: "🥉", color: "#cd7f32", gc_bonus: 200,
       required: ["session_1", "dashboard_created", "monitor_created"] },
     // Silver: full Day 1 + SLO
-    { id: "silver",   icon: "🥈", color: "#c0c0c0", gc_bonus: 300,
+    { id: "silver",   name: "Silver",   icon: "🥈", color: "#c0c0c0", gc_bonus: 300,
       required: ["session_1", "session_2", "session_3", "dashboard_created", "monitor_created", "slo_created"] },
     // Gold: full Day 2 + notebook + Bits AI SRE
-    { id: "gold",     icon: "🥇", color: "#f0b429", gc_bonus: 400,
+    { id: "gold",     name: "Gold",     icon: "🥇", color: "#f0b429", gc_bonus: 400,
       required: ["session_1", "session_2", "session_3", "dashboard_created", "monitor_created", "slo_created",
                  "session_4", "session_5", "session_6", "notebook_created", "bits_ai_sre"] },
     // Platinum: Gold + learning path + case + invited team member + 2 special achievements
-    { id: "platinum", icon: "💎", color: "#a78bfa", gc_bonus: 500,
+    { id: "platinum", name: "Platinum", icon: "💎", color: "#a78bfa", gc_bonus: 500,
       required: ["session_1", "session_2", "session_3", "dashboard_created", "monitor_created", "slo_created",
                  "session_4", "session_5", "session_6", "notebook_created", "bits_ai_sre",
                  "learning_path", "case_created", "user_invited"],

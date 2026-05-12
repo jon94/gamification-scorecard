@@ -537,12 +537,22 @@ header {
   padding: 2px 7px;
   white-space: nowrap;
 }
-.tier-reqs {
-  font-size: 11px;
+.tier-reqs-label {
+  font-size: 10px;
+  font-weight: 700;
   color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 8px 0 4px;
 }
+.tier-bullets {
+  margin: 0 0 8px 14px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+.tier-bullets li { padding-left: 2px; }
 .tier-progress {
   font-size: 11px;
   font-weight: 600;
