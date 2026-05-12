@@ -721,26 +721,26 @@ const TIER_PRIZES = {
   bronze:   {
     name:   'Bronze',
     prize:  'Datadog Sticker Pack', emoji: '🎁',
-    bullets: ['Attend Session 1 (Observability Overview)', 'Create a Dashboard', 'Configure an Alert'],
-    prefix:  'Complete all of:',
+    prereq:  null,
+    bullets: ['Attend Session 1 — Observability Overview', 'Create a Dashboard in Datadog', 'Configure your first Alert/Monitor'],
   },
   silver:   {
     name:   'Silver',
     prize:  'Datadog T-Shirt', emoji: '👕',
-    bullets: ['Complete all 3 Day 1 sessions', 'Create your first SLO'],
-    prefix:  'Bronze, plus:',
+    prereq:  '🥉 Earn Bronze first, then also:',
+    bullets: ['Attend Sessions 2 & 3 (complete all Day 1)', 'Create your first SLO'],
   },
   gold:     {
     name:   'Gold',
     prize:  'Datadog Hoodie', emoji: '🧥',
-    bullets: ['Complete all 3 Day 2 sessions', 'Write a Notebook', 'Trigger a Bits AI SRE Investigation'],
-    prefix:  'Silver, plus:',
+    prereq:  '🥈 Earn Silver first, then also:',
+    bullets: ['Attend all 3 Day 2 sessions', 'Author a Notebook', 'Trigger a Bits AI SRE Investigation'],
   },
   platinum: {
     name:   'Platinum',
     prize:  '$50 Gift Card', emoji: '💳',
-    bullets: ['Complete a Persona Based Learning Path', 'Create a Case', 'Invite a Team Member to Datadog'],
-    prefix:  'Gold, plus:',
+    prereq:  '🥇 Earn Gold first, then also:',
+    bullets: ['Complete a Persona Based Learning Path', 'Create a Case in Datadog', 'Invite a Team Member to Datadog'],
   },
 };
 
@@ -783,7 +783,7 @@ function renderAwardsPanel() {
     const p           = TIER_PRIZES[tier.id] || { name: tier.id, prize: '', emoji: '🎁', bullets: [], prefix: 'Complete:' };
     const tierName    = p.name || tier.name || (tier.id.charAt(0).toUpperCase() + tier.id.slice(1));
     const earnedCount = certCounts[tier.id] || 0;
-    const bulletHtml  = p.bullets.map(b => `<li>${b}</li>`).join('');
+    const bulletHtml = p.bullets.map(b => `<li>${b}</li>`).join('');
 
     const card = document.createElement('div');
     card.className = 'tier-card tier-card-' + tier.id;
@@ -796,7 +796,7 @@ function renderAwardsPanel() {
         </div>
         <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} GC</span>
       </div>
-      <div class="tier-reqs-label">${p.prefix}</div>
+      ${p.prereq ? `<div class="tier-prereq">${p.prereq}</div>` : '<div class="tier-reqs-label">Complete all of:</div>'}
       <ul class="tier-bullets">${bulletHtml}</ul>
       <div class="tier-progress">
         <span class="tier-earned" style="color:${tier.color}">${earnedCount} champion${earnedCount!==1?'s':''} earned</span>
@@ -812,10 +812,19 @@ function renderAwardsPanel() {
   specLabel.textContent = 'SPECIAL PRIZES';
   panel.appendChild(specLabel);
 
-  // Compute first Platinum and first Bits AI SRE
-  const platinumUsers = users.filter(u => u.certification === 'platinum');
-  const bitsAiUsers   = users.filter(u => u.milestones?.bits_ai_sre);
-  const topGCUser     = users.length > 0 ? users.reduce((a,b) => b.total_gc > a.total_gc ? b : a) : null;
+  // First Platinum: sort by _platinum_achieved_at timestamp if available, else GC order
+  const platinumUsers = users
+    .filter(u => u.certification === 'platinum')
+    .sort((a, b) => {
+      const ta = a.milestones?._platinum_achieved_at;
+      const tb = b.milestones?._platinum_achieved_at;
+      if (ta && tb) return new Date(ta) - new Date(tb);
+      if (ta) return -1;
+      if (tb) return 1;
+      return b.total_gc - a.total_gc;
+    });
+  const bitsAiUsers = users.filter(u => u.milestones?.bits_ai_sre);
+  const topGCUser   = users.length > 0 ? users.reduce((a,b) => b.total_gc > a.total_gc ? b : a) : null;
 
   SPECIAL_PRIZES.forEach((sp, i) => {
     let winner = null;

@@ -387,6 +387,20 @@ async function fetchData() {
       const specialOk = !tier.special_count || MILESTONES.special.filter(s => ms[s.id]).length >= tier.special_count;
       if (hasAll && specialOk) { cert = tier.id; bonus = tier.gc_bonus; break; }
     }
+    // Record first time Platinum is achieved (for "first to Platinum" prize)
+    if (cert === 'platinum' && !ms._platinum_achieved_at) {
+      ms._platinum_achieved_at = checkedAt;
+      // Persist to overrides.json so the timestamp is saved
+      try {
+        const ovPath = require('path').join(__dirname, 'overrides.json');
+        const ov = (() => { try { const r = JSON.parse(require('fs').readFileSync(ovPath,'utf8')); delete r._comment; return r; } catch(_){return {};} })();
+        if (!ov[user.email]) ov[user.email] = {};
+        if (!ov[user.email]._platinum_achieved_at) {
+          ov[user.email]._platinum_achieved_at = checkedAt;
+          require('fs').writeFileSync(ovPath, JSON.stringify(ov, null, 2));
+        }
+      } catch(_) {}
+    }
     userResults.push({ ...user, milestones: ms, evidence: ev, completion_pct: Math.round((done / allMs.length) * 100), total_gc: milestoneGC + bonus, milestone_gc: milestoneGC, bonus_gc: bonus, certification: cert });
   }
   console.log(`Built results for ${userResults.length} users.`);
