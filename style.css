@@ -408,9 +408,8 @@ header {
 .fg-col-sep-header { width: 8px; min-width: 8px; background: #08080f; padding: 0 !important; }
 .fg-col-sep        { background: #08080f; }
 
-/* Progress + GC headers */
+/* Progress header */
 .fg-progress-hdr { min-width: 130px; padding: 6px 12px !important; text-align: left !important; color: var(--text-muted); font-size: 11px; }
-.fg-gc-hdr       { min-width: 80px;  padding: 6px 12px !important; text-align: right !important; color: var(--accent-gold); font-size: 11px; }
 
 /* User rows */
 .fg-user-row { border-bottom: 1px solid #1a1a28; transition: background 0.12s; }
@@ -461,9 +460,6 @@ header {
 .fg-bar-bg  { height: 5px; background: #1e1e30; border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
 .fg-bar-fill { height: 100%; background: linear-gradient(90deg,#388e3c,#4caf50); border-radius: 3px; transition: width 0.4s; }
 .fg-pct     { font-size: 10px; color: var(--text-muted); text-align: right; }
-
-/* GC cell */
-.fg-gc-cell { text-align: right; padding: 0 12px; font-size: 13px; font-weight: 700; color: var(--accent-gold); white-space: nowrap; }
 
 /* Empty state */
 .fg-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
@@ -528,17 +524,6 @@ header {
 .tier-card-info { flex: 1; min-width: 0; }
 .tier-name  { display: block; font-size: 14px; font-weight: 700; }
 .tier-prize { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.tier-gc {
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent-gold);
-  background: rgba(240,180,41,0.1);
-  border: 1px solid rgba(240,180,41,0.25);
-  border-radius: 4px;
-  padding: 2px 7px;
-  white-space: nowrap;
-}
 .tier-prereq {
   font-size: 11px;
   font-weight: 700;
@@ -680,80 +665,6 @@ header {
   flex-shrink: 0;
 }
 
-/* ─── GC Breakdown bar & labels ─────────────────────────────────── */
-.gc-breakdown-bar {
-  display: flex;
-  height: 5px;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 4px;
-  margin-bottom: 3px;
-  background: var(--bg-cell);
-  gap: 1px;
-}
-.gc-seg { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-.gc-seg-core    { background: #53a8e2; }
-.gc-seg-org     { background: #4caf50; }
-.gc-seg-manual  { background: #dd6b20; }
-.gc-seg-advance { background: #f0b429; }
-.gc-seg-special { background: #a78bfa; }
-.gc-seg-bonus   { background: #f0b429; }
-
-.gc-breakdown-labels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.gc-lbl {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 10px;
-  white-space: nowrap;
-}
-.gc-lbl-core    { background: rgba(83,168,226,0.15);  color: #53a8e2; }
-.gc-lbl-org     { background: rgba(76,175,80,0.15);   color: #4caf50; }
-.gc-lbl-manual  { background: rgba(221,107,32,0.15);  color: #dd6b20; }
-.gc-lbl-advance { background: rgba(240,180,41,0.15);  color: #f0b429; }
-.gc-lbl-special { background: rgba(167,139,250,0.15); color: #a78bfa; }
-.gc-lbl-bonus   { background: rgba(240,180,41,0.15);  color: #f0b429; }
-
-.gc-unit { font-size: 10px; font-weight: 400; color: var(--text-muted); margin-left: 2px; }
-
-.gc-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #13131f;
-  border: 1px solid #2a2a40;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 12px;
-}
-.gc-legend-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #6060a0;
-  margin-right: 4px;
-  white-space: nowrap;
-}
-.gc-legend .gc-lbl {
-  font-size: 11px;
-  padding: 3px 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.gc-legend-desc {
-  font-weight: 400;
-  opacity: 0.75;
-  font-size: 10px;
-}
-
 .champion-info { flex: 1; min-width: 0; }
 .champion-name {
   font-size: 13px;
@@ -785,15 +696,6 @@ header {
 .champion-bar-pct {
   font-size: 10px;
   color: var(--text-muted);
-  text-align: right;
-}
-
-.champion-gc {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent-gold);
-  flex-shrink: 0;
-  min-width: 50px;
   text-align: right;
 }
 

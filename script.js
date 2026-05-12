@@ -336,7 +336,7 @@ function renderOrgStatus() {
 // ─── Grid state ──────────────────────────────────────────────────────────────
 let gridFilter = 'all';
 let gridSearch = '';
-let gridSort   = 'gc';
+let gridSort   = 'cert';
 
 function renderGrid() {
   const container = document.getElementById('cert-grid-container');
@@ -357,7 +357,7 @@ function renderGrid() {
     </div>
     <div class="sort-controls">
       <span class="sort-label">Sort:</span>
-      <button class="sort-btn active" data-s="gc">Points</button>
+      <button class="sort-btn active" data-s="cert">Cert Level</button>
       <button class="sort-btn" data-s="pct">Progress</button>
       <button class="sort-btn" data-s="name">Name</button>
     </div>
@@ -446,12 +446,6 @@ function refreshGridBody() {
   progTh.rowSpan = 2;
   progTh.textContent = 'Progress';
   labelRow.appendChild(progTh);
-
-  const gcTh = document.createElement('th');
-  gcTh.className = 'fg-gc-hdr';
-  gcTh.rowSpan = 2;
-  gcTh.textContent = 'Points';
-  labelRow.appendChild(gcTh);
 
   thead.appendChild(labelRow);
 
@@ -583,12 +577,6 @@ function buildFGRow(user, rank, allCols, colSections) {
     <div class="fg-pct">${pct}%</div>`;
   row.appendChild(progTd);
 
-  // ── GC cell ──
-  const gcTd = document.createElement('td');
-  gcTd.className = 'fg-gc-cell';
-  gcTd.textContent = user.total_gc.toLocaleString() + ' pts';
-  row.appendChild(gcTd);
-
   return row;
 }
 
@@ -612,7 +600,15 @@ function getSortedFilteredUsers() {
     const q = gridSearch.toLowerCase();
     users = users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
   }
-  if (gridSort === 'gc')   users.sort((a, b) => b.total_gc - a.total_gc);
+  if (gridSort === 'cert') {
+    const ORDER = { platinum: 4, gold: 3, silver: 2, bronze: 1 };
+    users.sort((a, b) => {
+      const ca = ORDER[a.certification] || 0;
+      const cb = ORDER[b.certification] || 0;
+      if (ca !== cb) return cb - ca;
+      return completionPct(b) - completionPct(a);
+    });
+  }
   if (gridSort === 'pct')  users.sort((a, b) => completionPct(b) - completionPct(a));
   if (gridSort === 'name') users.sort((a, b) => a.name.localeCompare(b.name));
   return users;
@@ -680,7 +676,6 @@ function showTooltip(e, ms, user, done) {
   const tip = document.getElementById('tooltip');
   tip.innerHTML = `
     <div class="tooltip-name">${ms.icon} ${ms.name}</div>
-    <div class="tooltip-pts">${ms.points} pts</div>
     <div class="tooltip-type">${typeLabel(ms.type)} · ${done ? '✅ Completed' : '⬜ Not done'}</div>
     <div class="tooltip-type">${user.name}</div>
   `;
@@ -791,7 +786,6 @@ function renderAwardsPanel() {
           <span class="tier-name" style="color:${tier.color}">${tierName}</span>
           <span class="tier-prize">${p.emoji} ${p.prize}</span>
         </div>
-        <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} pts</span>
       </div>
       ${p.prereq ? `<div class="tier-prereq">${p.prereq}</div>` : '<div class="tier-reqs-label">Complete all of:</div>'}
       <ul class="tier-bullets">${bulletHtml}</ul>
@@ -869,7 +863,13 @@ function renderScoreboard() {
   container.innerHTML = '';
   container.style.padding = '24px';
 
-  const users = [...DATA.users].sort((a, b) => b.total_gc - a.total_gc);
+  const CERT_ORDER = { platinum: 4, gold: 3, silver: 2, bronze: 1 };
+  const users = [...DATA.users].sort((a, b) => {
+    const ca = CERT_ORDER[a.certification] || 0;
+    const cb = CERT_ORDER[b.certification] || 0;
+    if (ca !== cb) return cb - ca;
+    return completionPct(b) - completionPct(a);
+  });
   const total  = totalMilestoneCount();
 
   // ── Stats row ──
@@ -878,14 +878,14 @@ function renderScoreboard() {
 
   const platCount   = users.filter(u => u.certification === 'platinum').length;
   const goldCount   = users.filter(u => u.certification === 'gold').length;
-  const totalGC     = users.reduce((s, u) => s + u.total_gc, 0);
+  const goldPlusCount = users.filter(u => u.certification === 'gold' || u.certification === 'platinum').length;
   const certCount   = users.filter(u => u.certification).length;
 
   const stats = [
-    { label: 'Champions',       value: users.length,  cls: 'blue' },
-    { label: 'Certified',       value: certCount,      cls: 'green' },
-    { label: 'Platinum',        value: platCount,      cls: 'purple' },
-    { label: 'Total Points Awarded',value: totalGC.toLocaleString() + ' pts', cls: 'gold' },
+    { label: 'Champions',  value: users.length,   cls: 'blue' },
+    { label: 'Certified',  value: certCount,       cls: 'green' },
+    { label: 'Gold+',      value: goldPlusCount,   cls: 'gold' },
+    { label: 'Platinum',   value: platCount,       cls: 'purple' },
   ];
 
   stats.forEach(s => {
@@ -897,18 +897,6 @@ function renderScoreboard() {
 
   container.appendChild(statsRow);
 
-  // ── GC Category Legend ──
-  const legend = document.createElement('div');
-  legend.className = 'gc-legend';
-  legend.innerHTML = `
-    <span class="gc-legend-title">Points by category:</span>
-    <span class="gc-lbl gc-lbl-core">📋 Core <span class="gc-legend-desc">— Audit Trail: dashboards, monitors, SLOs, notebooks, cases, Bits AI SRE</span></span>
-    <span class="gc-lbl gc-lbl-manual">✍️ Manual <span class="gc-legend-desc">— Enablement sessions + Persona learning path</span></span>
-    <span class="gc-lbl gc-lbl-advance">📜 Advance <span class="gc-legend-desc">— Datadog certifications (500 pts each)</span></span>
-    <span class="gc-lbl gc-lbl-bonus">🏅 Cert Bonus <span class="gc-legend-desc">— Bronze +200 · Silver +300 · Gold +400 · Platinum +500</span></span>
-  `;
-  container.appendChild(legend);
-
   // ── Grid ──
   const grid = document.createElement('div');
   grid.className = 'scoreboard-grid';
@@ -918,9 +906,6 @@ function renderScoreboard() {
 
   // Card 2: Certified Practitioners
   grid.appendChild(makeCertifiedCard(users));
-
-  // Card 3: Top Scorers
-  grid.appendChild(makeTopGCCard(users));
 
   container.appendChild(grid);
 }
@@ -942,12 +927,6 @@ function makeRankingsCard(users, total) {
     else                 rankHtml = `<span class="champion-rank">#${rank}</span>`;
 
     const avatarColor = stringColor(user.email);
-    const bd = gcBreakdown(user);
-    const totalGC = user.total_gc || 0;
-    const maxPossible = totalGC || 1;
-
-    // Segment widths as % of total_gc
-    const seg = (v) => totalGC > 0 ? Math.round((v / totalGC) * 100) : 0;
 
     const row = document.createElement('div');
     row.className = 'champion-row';
@@ -958,20 +937,9 @@ function makeRankingsCard(users, total) {
       </div>
       <div class="champion-info">
         <div class="champion-name">${user.name} ${c.icon}</div>
-        <div class="gc-breakdown-bar" title="Core: ${bd.core} | Manual: ${bd.manual} | Advance: ${bd.advance} | Cert Bonus: ${bd.bonus}">
-          ${bd.core    > 0 ? `<div class="gc-seg gc-seg-core"    style="width:${seg(bd.core)}%"    title="Core: ${bd.core} pts"></div>`       : ''}
-          ${bd.manual  > 0 ? `<div class="gc-seg gc-seg-manual"  style="width:${seg(bd.manual)}%"  title="Manual: ${bd.manual} pts"></div>`    : ''}
-          ${bd.advance > 0 ? `<div class="gc-seg gc-seg-advance" style="width:${seg(bd.advance)}%" title="Advance: ${bd.advance} pts"></div>`  : ''}
-          ${bd.bonus   > 0 ? `<div class="gc-seg gc-seg-bonus"   style="width:${seg(bd.bonus)}%"   title="Cert Bonus: ${bd.bonus} pts"></div>` : ''}
-        </div>
-        <div class="gc-breakdown-labels">
-          ${bd.core    > 0 ? `<span class="gc-lbl gc-lbl-core">📋 ${bd.core}</span>`        : ''}
-          ${bd.manual  > 0 ? `<span class="gc-lbl gc-lbl-manual">✍️ ${bd.manual}</span>`   : ''}
-          ${bd.advance > 0 ? `<span class="gc-lbl gc-lbl-advance">📜 ${bd.advance}</span>` : ''}
-          ${bd.bonus   > 0 ? `<span class="gc-lbl gc-lbl-bonus">🏅 ${bd.bonus}</span>`      : ''}
-        </div>
+        <div class="fg-bar-bg" style="margin-top:4px"><div class="fg-bar-fill" style="width:${pct}%"></div></div>
+        <div class="fg-pct">${pct}%</div>
       </div>
-      <div class="champion-gc">${totalGC.toLocaleString()}<span class="gc-unit"> pts</span></div>
     `;
     card.appendChild(row);
   });
@@ -1018,45 +986,6 @@ function makeCertifiedCard(users) {
   return card;
 }
 
-function makeTopGCCard(users) {
-  const card = document.createElement('div');
-  card.className = 'score-card';
-  card.innerHTML = `<div class="score-card-title">💰 Top Scorers</div>`;
-
-  users.slice(0, 8).forEach((user, idx) => {
-    const c = certLabel(user.certification);
-    const maxGC = users[0].total_gc || 1;
-    const barW  = Math.round((user.total_gc / maxGC) * 100);
-
-    const bd2 = gcBreakdown(user);
-    const row = document.createElement('div');
-    row.className = 'champion-row';
-    row.innerHTML = `
-      <span class="champion-rank" style="font-size:13px;color:#888">#${idx + 1}</span>
-      <div class="champion-avatar" style="background:${stringColor(user.email)};width:34px;height:34px;font-size:12px">
-        ${initials(user.name)}
-      </div>
-      <div class="champion-info">
-        <div class="champion-name">${user.name} ${c.icon}</div>
-        <div class="gc-breakdown-labels" style="margin-top:2px">
-          ${bd2.core    > 0 ? `<span class="gc-lbl gc-lbl-core">📋 ${bd2.core}</span>`        : ''}
-          ${bd2.manual  > 0 ? `<span class="gc-lbl gc-lbl-manual">✍️ ${bd2.manual}</span>`   : ''}
-          ${bd2.advance > 0 ? `<span class="gc-lbl gc-lbl-advance">📜 ${bd2.advance}</span>` : ''}
-          ${bd2.bonus   > 0 ? `<span class="gc-lbl gc-lbl-bonus">🏅 ${bd2.bonus}</span>`      : ''}
-        </div>
-      </div>
-      <div class="champion-bar-wrap">
-        <div class="champion-bar-bg">
-          <div class="champion-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,#b7791f,#f0b429)"></div>
-        </div>
-        <div class="champion-bar-pct" style="color:#b7791f">${user.total_gc.toLocaleString()} pts</div>
-      </div>
-    `;
-    card.appendChild(row);
-  });
-
-  return card;
-}
 
 // ─── Evidence Modal ──────────────────────────────────────────────────────────
 function showEvidenceModal(user, ms) {
