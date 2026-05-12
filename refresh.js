@@ -64,7 +64,7 @@ const MILESTONES = {
     { id: 'notebook_created',  name: 'Notebook Authored',                 icon: '📓', points: 100, type: 'audit', audit_query: '@action:created @evt.name:Notebook' },
     { id: 'case_created',      name: 'Case Created',                      icon: '📋', points: 100, type: 'audit', audit_query: '@action:created @evt.name:Case Management' },
     { id: 'user_invited',      name: 'Team Member Invited',               icon: '👥', points: 100, type: 'audit', audit_query: '@action:created @evt.name:Access Management @asset.type:user' },
-    { id: 'bits_ai_sre',       name: 'Trigger Bits AI SRE Investigation', icon: '🤖', points: 200, type: 'audit', audit_query: '@evt.name:Bits AI SRE @auth_method:SESSION' },
+    { id: 'bits_ai_sre',       name: 'Trigger Bits AI SRE Investigation', icon: '🤖', points: 200, type: 'audit', audit_query: '@evt.name:"Bits AI SRE" @auth_method:SESSION' },
   ],
   // Org-wide product activation (shown in status bar, not scored individually)
   org: [
