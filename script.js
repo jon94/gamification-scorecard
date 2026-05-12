@@ -197,9 +197,6 @@ function renderAll() {
     if (IS_SAMPLE) {
       banner.textContent = '🎯 DEMO MODE — Run node refresh.js or node server.js to load live data.';
       banner.classList.add('visible');
-    } else if (IS_LOCAL_SERVER) {
-      banner.textContent = `🟢 Live data via server.js — auto-refreshes every 30 min`;
-      banner.classList.add('visible', 'live');
     } else {
       banner.classList.remove('visible');
     }
