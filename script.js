@@ -14,7 +14,8 @@
 // Only use static/fallback mode for file:// (direct file open without a server)
 const IS_LOCAL_SERVER = (
   typeof location !== 'undefined' &&
-  /^https?:\/\//.test(location.origin)
+  /^https?:\/\//.test(location.origin) &&
+  !location.pathname.startsWith('/demo')
 );
 
 let DATA      = null;

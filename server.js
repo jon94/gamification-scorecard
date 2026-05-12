@@ -591,7 +591,9 @@ const server = http.createServer((req, res) => {
   }
 
   // ── Static file serving ──
-  let filePath = url.pathname === '/' ? '/index.html' : url.pathname;
+  let filePath = url.pathname === '/' ? '/index.html'
+              : url.pathname === '/demo' ? '/demo.html'
+              : url.pathname;
 
   // Block data.js — browser should use /api/data instead when running locally
   if (filePath === '/data.js') {
