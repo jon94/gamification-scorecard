@@ -10,10 +10,11 @@
 'use strict';
 
 // ─── Detect mode ────────────────────────────────────────────────────────────
-// Running via server.js if origin is http://localhost or http://127.0.0.1
+// Use server API for any http(s):// origin (localhost dev OR production GCP)
+// Only use static/fallback mode for file:// (direct file open without a server)
 const IS_LOCAL_SERVER = (
   typeof location !== 'undefined' &&
-  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(location.origin)
+  /^https?:\/\//.test(location.origin)
 );
 
 let DATA      = null;
