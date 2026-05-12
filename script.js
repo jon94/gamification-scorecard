@@ -529,55 +529,42 @@ function buildFGRow(user, rank, allCols, colSections) {
     const td    = document.createElement('td');
     td.className = 'fg-cell ' + cls + (done ? ' fg-done' : ' fg-todo');
 
-    if (done && ms.type === 'manual' && isAdminMode) {
-      // Done manual cell in admin mode — show ✓ but allow unticking on click
-      td.textContent = '✓';
-      td.classList.add('fg-manual-done');
-      td.title = 'Click to unmark — ' + ms.name;
-      td.addEventListener('click', () => {
-        user.milestones[ms.id] = false;
-        td.textContent = '○';
-        td.classList.replace('fg-done', 'fg-todo');
-        td.classList.remove('fg-manual-done');
-        td.classList.add('fg-manual');
-        recalculateUser(user);
-        updateFGRowStats(row, user);
-        renderAwardsPanel();
-        renderScoreboard();
-        if (IS_LOCAL_SERVER) {
-          fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: false }) }).catch(() => {});
-        } else {
-          saveLocalOverride(user.email, ms.id, false);
-        }
-      });
-    } else if (done) {
-      td.textContent = '✓';
-    } else if (ms.type === 'manual') {
-      td.textContent = '○';
+    if (ms.type === 'manual') {
+      // Render initial state
+      td.textContent = done ? '✓' : '○';
       if (isAdminMode) {
-        td.classList.add('fg-manual');
-        td.title = 'Click to mark done — ' + ms.name;
+        td.classList.add(done ? 'fg-manual-done' : 'fg-manual');
+        td.title = (done ? 'Click to unmark' : 'Click to mark done') + ' — ' + ms.name;
+        // Single toggle handler — reads live state on every click, no stale closure
         td.addEventListener('click', () => {
-          user.milestones[ms.id] = true;
-          td.textContent = '✓';
-          td.classList.replace('fg-todo', 'fg-done');
-          td.classList.remove('fg-manual');
-          td.classList.add('fg-manual-done');
+          const newVal = !user.milestones[ms.id];
+          user.milestones[ms.id] = newVal;
+          td.textContent = newVal ? '✓' : '○';
+          if (newVal) {
+            td.classList.replace('fg-todo', 'fg-done');
+            td.classList.replace('fg-manual', 'fg-manual-done');
+            td.title = 'Click to unmark — ' + ms.name;
+          } else {
+            td.classList.replace('fg-done', 'fg-todo');
+            td.classList.replace('fg-manual-done', 'fg-manual');
+            td.title = 'Click to mark done — ' + ms.name;
+          }
           recalculateUser(user);
           updateFGRowStats(row, user);
           renderAwardsPanel();
           renderScoreboard();
           if (IS_LOCAL_SERVER) {
             fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: true }) }).catch(() => {});
+              body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: newVal }) }).catch(() => {});
           } else {
-            saveLocalOverride(user.email, ms.id, true);
+            saveLocalOverride(user.email, ms.id, newVal);
           }
         });
       } else {
-        td.title = ms.name + ' — unlock admin mode to edit';
+        td.title = ms.name + (done ? '' : ' — unlock admin mode to edit');
       }
+    } else if (done) {
+      td.textContent = '✓';
     } else {
       td.innerHTML = '<span class="fg-lock">🔒</span>';
     }
