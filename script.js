@@ -275,7 +275,9 @@ function completionPct(user) {
 /** Certification tier label/icon for a user */
 function certLabel(certId) {
   const tier = DATA.certification_tiers.find(t => t.id === certId);
-  return tier ? { icon: tier.icon, name: tier.name, color: tier.color } : { icon: '—', name: 'None', color: '#555' };
+  if (!tier) return { icon: '', name: '—', color: '#555' };
+  const name = tier.name || (tier.id.charAt(0).toUpperCase() + tier.id.slice(1));
+  return { icon: tier.icon, name, color: tier.color };
 }
 
 // ─── Avatar element ──────────────────────────────────────────────────────────
@@ -527,7 +529,28 @@ function buildFGRow(user, rank, allCols, colSections) {
     const td    = document.createElement('td');
     td.className = 'fg-cell ' + cls + (done ? ' fg-done' : ' fg-todo');
 
-    if (done) {
+    if (done && ms.type === 'manual' && isAdminMode) {
+      // Done manual cell in admin mode — show ✓ but allow unticking on click
+      td.textContent = '✓';
+      td.classList.add('fg-manual-done');
+      td.title = 'Click to unmark — ' + ms.name;
+      td.addEventListener('click', () => {
+        user.milestones[ms.id] = false;
+        td.textContent = '○';
+        td.classList.replace('fg-done', 'fg-todo');
+        td.classList.remove('fg-manual-done');
+        td.classList.add('fg-manual');
+        recalculateUser(user);
+        updateFGRowStats(row, user);
+        renderScoreboard();
+        if (IS_LOCAL_SERVER) {
+          fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ email: user.email, milestone_id: ms.id, value: false }) }).catch(() => {});
+        } else {
+          saveLocalOverride(user.email, ms.id, false);
+        }
+      });
+    } else if (done) {
       td.textContent = '✓';
     } else if (ms.type === 'manual') {
       td.textContent = '○';
@@ -539,6 +562,7 @@ function buildFGRow(user, rank, allCols, colSections) {
           td.textContent = '✓';
           td.classList.replace('fg-todo', 'fg-done');
           td.classList.remove('fg-manual');
+          td.classList.add('fg-manual-done');
           recalculateUser(user);
           updateFGRowStats(row, user);
           renderScoreboard();
