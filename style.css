@@ -75,8 +75,10 @@ header {
   gap: 12px;
 }
 
-.header-logo svg  { width: 44px; height: 44px; flex-shrink: 0; }
-.header-logo .dd-logo { width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; }
+.header-logo svg      { width: 44px; height: 44px; flex-shrink: 0; }
+.header-logo .dd-logo   { width: 44px; height: 44px; flex-shrink: 0; border-radius: 8px; }
+.header-logo .hkjc-logo { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; object-fit: cover; }
+.logo-divider { width: 1px; height: 32px; background: rgba(200,168,75,0.35); flex-shrink: 0; }
 
 .header-title-group {
   display: flex;
