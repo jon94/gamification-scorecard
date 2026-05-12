@@ -542,6 +542,7 @@ function buildFGRow(user, rank, allCols, colSections) {
         td.classList.add('fg-manual');
         recalculateUser(user);
         updateFGRowStats(row, user);
+        renderAwardsPanel();
         renderScoreboard();
         if (IS_LOCAL_SERVER) {
           fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
@@ -565,6 +566,7 @@ function buildFGRow(user, rank, allCols, colSections) {
           td.classList.add('fg-manual-done');
           recalculateUser(user);
           updateFGRowStats(row, user);
+          renderAwardsPanel();
           renderScoreboard();
           if (IS_LOCAL_SERVER) {
             fetch('/api/manual-override', { method: 'POST', headers: {'Content-Type':'application/json'},
