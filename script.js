@@ -253,7 +253,7 @@ function initials(name) {
 
 /** Total milestone count across all sections */
 // Org milestones are org-wide context only — excluded from individual scoring
-const INDIVIDUAL_SECTIONS = ['core', 'day1', 'day2', 'self_learning', 'advance', 'special'];
+const INDIVIDUAL_SECTIONS = ['core', 'day1', 'day2', 'self_learning', 'advance'];
 
 function totalMilestoneCount() {
   const m = DATA.milestones;
@@ -638,12 +638,7 @@ function recalculateUser(user) {
 
   for (const tier of tiers) {
     const hasAll = tier.required.every(id => user.milestones[id]);
-    let specialOk = true;
-    if (tier.special_count) {
-      const specialDone = DATA.milestones.special.filter(s => user.milestones[s.id]).length;
-      specialOk = specialDone >= tier.special_count;
-    }
-    if (hasAll && specialOk) {
+    if (hasAll) {
       cert = tier.id;
       bonus = tier.gc_bonus;
       break;
@@ -708,53 +703,125 @@ function typeLabel(type) {
 }
 
 // ─── AWARDS PANEL ────────────────────────────────────────────────────────────
+// ─── Awards config — prizes attached to each cert tier ───────────────────────
+const TIER_PRIZES = {
+  bronze:   { prize: 'Datadog Sticker Pack',   emoji: '🎁' },
+  silver:   { prize: 'Datadog T-Shirt',         emoji: '👕' },
+  gold:     { prize: 'Datadog Hoodie',           emoji: '🧥' },
+  platinum: { prize: '$50 Gift Card',            emoji: '💳' },
+};
+
+const SPECIAL_PRIZES = [
+  { icon: '🏆', label: 'First to reach Platinum',        prize: 'Exclusive Datadog Backpack' },
+  { icon: '🤖', label: 'First Bits AI SRE Investigation', prize: 'Bits AI Collector\'s Badge'  },
+  { icon: '📊', label: 'Top GC Earner',                  prize: '$100 Gift Voucher'           },
+];
+
 function renderAwardsPanel() {
   const panel = document.getElementById('awards-panel');
   panel.innerHTML = '';
 
-  const title = document.createElement('div');
-  title.className = 'awards-title';
-  title.innerHTML = '🏆 Awards & Prizes';
-  panel.appendChild(title);
+  // ── Title ──
+  panel.innerHTML = `<div class="awards-title">🏆 Awards & Prizes</div>`;
+
+  // ── Progress summary ──
+  const users = DATA.users || [];
+  const certCounts = { bronze: 0, silver: 0, gold: 0, platinum: 0 };
+  users.forEach(u => { if (u.certification) certCounts[u.certification] = (certCounts[u.certification] || 0) + 1; });
+  const certified = Object.values(certCounts).reduce((a,b)=>a+b,0);
+
+  const summary = document.createElement('div');
+  summary.className = 'awards-summary';
+  summary.innerHTML = `
+    <span class="awards-summary-num">${certified}</span>
+    <span class="awards-summary-lbl">of ${users.length} certified</span>
+  `;
+  panel.appendChild(summary);
+
+  // ── Cert tier cards ──
+  const sectionLabel = document.createElement('div');
+  sectionLabel.className = 'awards-section-label';
+  sectionLabel.textContent = 'CERTIFICATION TIERS';
+  panel.appendChild(sectionLabel);
+
+  const allMs = INDIVIDUAL_SECTIONS.flatMap(s => DATA.milestones[s] || []);
 
   DATA.certification_tiers.forEach(tier => {
+    const p = TIER_PRIZES[tier.id] || { prize: '', emoji: '🎁' };
+    const earnedCount = certCounts[tier.id] || 0;
+
+    // Group requirements by section
+    const day1Ids  = (DATA.milestones.day1  || []).map(m => m.id);
+    const day2Ids  = (DATA.milestones.day2  || []).map(m => m.id);
+    const coreIds  = (DATA.milestones.core  || []).map(m => m.id);
+
+    const reqGroups = [];
+    const reqCore   = tier.required.filter(id => coreIds.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
+    const reqDay1   = tier.required.filter(id => day1Ids.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
+    const reqDay2   = tier.required.filter(id => day2Ids.includes(id)).map(id => allMs.find(m=>m.id===id)).filter(Boolean);
+    const reqOther  = tier.required.filter(id => !coreIds.includes(id) && !day1Ids.includes(id) && !day2Ids.includes(id))
+                        .map(id => allMs.find(m=>m.id===id)).filter(Boolean);
+
+    const reqLines = [];
+    if (reqCore.length)  reqLines.push(reqCore.map(m=>`${m.icon} ${m.name}`).join(', '));
+    if (reqDay1.length)  reqLines.push(`Day 1: ${reqDay1.map(m=>m.icon).join('')} ${reqDay1.length} session${reqDay1.length>1?'s':''}`);
+    if (reqDay2.length)  reqLines.push(`Day 2: ${reqDay2.map(m=>m.icon).join('')} ${reqDay2.length} session${reqDay2.length>1?'s':''}`);
+    if (reqOther.length) reqLines.push(reqOther.map(m=>`${m.icon} ${m.name}`).join(', '));
+
     const card = document.createElement('div');
-    card.className = 'tier-card';
-
-    const reqs = tier.required.slice();
-    const allMs = INDIVIDUAL_SECTIONS.flatMap(s => DATA.milestones[s] || []);
-    const reqNames = reqs.map(id => {
-      const found = allMs.find(m => m.id === id);
-      return found ? found.icon + ' ' + found.name : id;
-    });
-
+    card.className = 'tier-card tier-card-' + tier.id;
     card.innerHTML = `
       <div class="tier-card-header">
         <span class="tier-icon">${tier.icon}</span>
-        <span class="tier-name" style="color:${tier.color}">${tier.name}</span>
-        <span class="tier-gc">+${tier.gc_bonus} GC</span>
+        <div class="tier-card-info">
+          <span class="tier-name" style="color:${tier.color}">${tier.name}</span>
+          <span class="tier-prize">${p.emoji} ${p.prize}</span>
+        </div>
+        <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} GC</span>
       </div>
-      <div class="tier-reqs">
-        ${reqNames.join(' · ')}
-        ${tier.special_count ? `<br><strong>+ ${tier.special_count} Special Achievements</strong>` : ''}
+      <div class="tier-reqs">${reqLines.join('<br>')}</div>
+      <div class="tier-progress">
+        <span class="tier-earned" style="color:${tier.color}">${earnedCount} champion${earnedCount!==1?'s':''} earned</span>
       </div>
     `;
     panel.appendChild(card);
   });
 
-  // Special achievements section
-  const specTitle = document.createElement('div');
-  specTitle.className = 'awards-special-title';
-  specTitle.textContent = 'Special Achievements';
-  panel.appendChild(specTitle);
+  // ── Special prizes ──
+  const specLabel = document.createElement('div');
+  specLabel.className = 'awards-section-label';
+  specLabel.style.marginTop = '16px';
+  specLabel.textContent = 'SPECIAL PRIZES';
+  panel.appendChild(specLabel);
 
-  DATA.milestones.special.forEach(ms => {
+  // Compute first Platinum and first Bits AI SRE
+  const platinumUsers = users.filter(u => u.certification === 'platinum');
+  const bitsAiUsers   = users.filter(u => u.milestones?.bits_ai_sre);
+  const topGCUser     = users.length > 0 ? users.reduce((a,b) => b.total_gc > a.total_gc ? b : a) : null;
+
+  SPECIAL_PRIZES.forEach((sp, i) => {
+    let winner = null;
+    if (i === 0) winner = platinumUsers[0];
+    if (i === 1) winner = bitsAiUsers[0];
+    if (i === 2) winner = topGCUser;
+
     const item = document.createElement('div');
-    item.className = 'special-item';
+    item.className = 'special-prize-card' + (winner ? ' sp-claimed' : '');
     item.innerHTML = `
-      <span class="s-icon">${ms.icon}</span>
-      <span class="s-name">${ms.name}</span>
-      <span class="s-pts">${ms.points} GC</span>
+      <div class="sp-header">
+        <span class="sp-icon">${sp.icon}</span>
+        <div class="sp-info">
+          <div class="sp-label">${sp.label}</div>
+          <div class="sp-prize">🎁 ${sp.prize}</div>
+        </div>
+      </div>
+      ${winner
+        ? `<div class="sp-winner">
+             <div class="sp-avatar" style="background:${stringColor(winner.email)}">${initials(winner.name)}</div>
+             <span class="sp-winner-name">${winner.name}</span>
+           </div>`
+        : `<div class="sp-unclaimed">Not yet claimed</div>`
+      }
     `;
     panel.appendChild(item);
   });
@@ -768,7 +835,6 @@ function gcBreakdown(user) {
     core:    calc(DATA.milestones.core),
     manual:  calc([...(DATA.milestones.day1||[]), ...(DATA.milestones.day2||[]), ...(DATA.milestones.self_learning||[])]),
     advance: calc(DATA.milestones.advance),
-    special: calc(DATA.milestones.special),
     bonus:   user.bonus_gc || 0,
   };
 }
@@ -868,18 +934,16 @@ function makeRankingsCard(users, total) {
       </div>
       <div class="champion-info">
         <div class="champion-name">${user.name} ${c.icon}</div>
-        <div class="gc-breakdown-bar" title="Core: ${bd.core} | Manual: ${bd.manual} | Advance: ${bd.advance} | Special: ${bd.special} | Cert Bonus: ${bd.bonus}">
+        <div class="gc-breakdown-bar" title="Core: ${bd.core} | Manual: ${bd.manual} | Advance: ${bd.advance} | Cert Bonus: ${bd.bonus}">
           ${bd.core    > 0 ? `<div class="gc-seg gc-seg-core"    style="width:${seg(bd.core)}%"    title="Core: ${bd.core} GC"></div>`       : ''}
           ${bd.manual  > 0 ? `<div class="gc-seg gc-seg-manual"  style="width:${seg(bd.manual)}%"  title="Manual: ${bd.manual} GC"></div>`    : ''}
           ${bd.advance > 0 ? `<div class="gc-seg gc-seg-advance" style="width:${seg(bd.advance)}%" title="Advance: ${bd.advance} GC"></div>`  : ''}
-          ${bd.special > 0 ? `<div class="gc-seg gc-seg-special" style="width:${seg(bd.special)}%" title="Special: ${bd.special} GC"></div>`  : ''}
           ${bd.bonus   > 0 ? `<div class="gc-seg gc-seg-bonus"   style="width:${seg(bd.bonus)}%"   title="Cert Bonus: ${bd.bonus} GC"></div>` : ''}
         </div>
         <div class="gc-breakdown-labels">
           ${bd.core    > 0 ? `<span class="gc-lbl gc-lbl-core">📋 ${bd.core}</span>`        : ''}
           ${bd.manual  > 0 ? `<span class="gc-lbl gc-lbl-manual">✍️ ${bd.manual}</span>`   : ''}
           ${bd.advance > 0 ? `<span class="gc-lbl gc-lbl-advance">📜 ${bd.advance}</span>` : ''}
-          ${bd.special > 0 ? `<span class="gc-lbl gc-lbl-special">⭐ ${bd.special}</span>`  : ''}
           ${bd.bonus   > 0 ? `<span class="gc-lbl gc-lbl-bonus">🏅 ${bd.bonus}</span>`      : ''}
         </div>
       </div>
@@ -954,7 +1018,6 @@ function makeTopGCCard(users) {
           ${bd2.core    > 0 ? `<span class="gc-lbl gc-lbl-core">📋 ${bd2.core}</span>`        : ''}
           ${bd2.manual  > 0 ? `<span class="gc-lbl gc-lbl-manual">✍️ ${bd2.manual}</span>`   : ''}
           ${bd2.advance > 0 ? `<span class="gc-lbl gc-lbl-advance">📜 ${bd2.advance}</span>` : ''}
-          ${bd2.special > 0 ? `<span class="gc-lbl gc-lbl-special">⭐ ${bd2.special}</span>`  : ''}
           ${bd2.bonus   > 0 ? `<span class="gc-lbl gc-lbl-bonus">🏅 ${bd2.bonus}</span>`      : ''}
         </div>
       </div>

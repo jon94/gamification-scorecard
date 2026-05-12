@@ -477,77 +477,111 @@ header {
 
 /* ─── Awards Panel ──────────────────────────────────────────────── */
 .awards-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent-gold);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin-bottom: 10px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 12px;
 }
+.awards-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.awards-summary-num { font-size: 28px; font-weight: 800; color: #fff; }
+.awards-summary-lbl { font-size: 12px; color: var(--text-muted); }
 
+.awards-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+/* Tier cards */
 .tier-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px;
-  margin-bottom: 10px;
-  background: var(--bg-cell);
+  margin-bottom: 8px;
+  background: #13131f;
+  transition: border-color 0.15s;
 }
+.tier-card-bronze  { border-left: 3px solid #cd7f32; }
+.tier-card-silver  { border-left: 3px solid #c0c0c0; }
+.tier-card-gold    { border-left: 3px solid #f0b429; }
+.tier-card-platinum{ border-left: 3px solid #a78bfa; }
 
 .tier-card-header {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
   margin-bottom: 8px;
 }
-.tier-icon { font-size: 20px; }
-.tier-name { font-size: 14px; font-weight: 700; }
+.tier-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.tier-card-info { flex: 1; min-width: 0; }
+.tier-name  { display: block; font-size: 14px; font-weight: 700; }
+.tier-prize { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 .tier-gc {
-  margin-left: auto;
-  font-size: 13px;
+  flex-shrink: 0;
+  font-size: 12px;
   font-weight: 700;
   color: var(--accent-gold);
   background: rgba(240,180,41,0.1);
-  border: 1px solid rgba(240,180,41,0.3);
+  border: 1px solid rgba(240,180,41,0.25);
   border-radius: 4px;
-  padding: 2px 8px;
+  padding: 2px 7px;
+  white-space: nowrap;
 }
-
 .tier-reqs {
   font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.7;
+  margin-bottom: 6px;
 }
-.tier-reqs strong { color: var(--text-secondary); }
-
-.awards-special-title {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 16px 0 8px;
+.tier-progress {
+  font-size: 11px;
+  font-weight: 600;
 }
+.tier-earned { opacity: 0.8; }
 
-.special-item {
+/* Special prize cards */
+.special-prize-card {
+  background: #13131f;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.special-prize-card.sp-claimed { border-color: #38a169; }
+.sp-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.sp-icon { font-size: 20px; flex-shrink: 0; }
+.sp-info { flex: 1; }
+.sp-label { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.sp-prize { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sp-winner {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  background: var(--bg-cell);
-  border-radius: var(--radius);
-  margin-bottom: 6px;
-  border: 1px solid var(--border);
+  background: rgba(56,161,105,0.1);
+  border-radius: 6px;
+  padding: 5px 8px;
 }
-.special-item .s-icon { font-size: 16px; }
-.special-item .s-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.special-item .s-pts {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--platinum);
+.sp-avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.sp-winner-name { font-size: 12px; font-weight: 600; color: #68d391; }
+.sp-unclaimed {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 3px 4px;
 }
 
 /* ─── Scoreboard View ───────────────────────────────────────────── */

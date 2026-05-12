@@ -175,7 +175,7 @@ const CERT_TIERS = [
     required: ['session_1', 'session_2', 'session_3', 'dashboard_created', 'monitor_created', 'slo_created',
                'session_4', 'session_5', 'session_6', 'notebook_created', 'bits_ai_sre',
                'learning_path', 'case_created', 'user_invited'],
-    special_count: 2 },
+    },
 ];
 
 // ─── Data fetch logic (same as refresh.js but returns object instead of writing file) ──
