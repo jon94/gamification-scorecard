@@ -357,7 +357,7 @@ function renderGrid() {
     </div>
     <div class="sort-controls">
       <span class="sort-label">Sort:</span>
-      <button class="sort-btn active" data-s="gc">GC</button>
+      <button class="sort-btn active" data-s="gc">Points</button>
       <button class="sort-btn" data-s="pct">Progress</button>
       <button class="sort-btn" data-s="name">Name</button>
     </div>
@@ -450,7 +450,7 @@ function refreshGridBody() {
   const gcTh = document.createElement('th');
   gcTh.className = 'fg-gc-hdr';
   gcTh.rowSpan = 2;
-  gcTh.textContent = 'GC Earned';
+  gcTh.textContent = 'Points';
   labelRow.appendChild(gcTh);
 
   thead.appendChild(labelRow);
@@ -460,7 +460,7 @@ function refreshGridBody() {
   allCols.forEach(({ ms, cls, firstInSection, isLast }) => {
     const th = document.createElement('th');
     th.className = 'fg-ms-hdr ' + cls;
-    th.title = ms.name + ' — ' + ms.points + ' GC\n' + (ms.audit_query || 'Manual override');
+    th.title = ms.name + ' — ' + ms.points + ' pts\n' + (ms.audit_query || 'Manual override');
     th.textContent = ms.icon;
     msRow.appendChild(th);
 
@@ -586,7 +586,7 @@ function buildFGRow(user, rank, allCols, colSections) {
   // ── GC cell ──
   const gcTd = document.createElement('td');
   gcTd.className = 'fg-gc-cell';
-  gcTd.textContent = user.total_gc.toLocaleString();
+  gcTd.textContent = user.total_gc.toLocaleString() + ' pts';
   row.appendChild(gcTd);
 
   return row;
@@ -671,7 +671,7 @@ function refreshUserCertBadge(user) {
   if (badges[idx]) {
     const c = certLabel(user.certification);
     badges[idx].textContent = c.icon;
-    badges[idx].title = c.name + ' — ' + user.total_gc + ' GC';
+    badges[idx].title = c.name + ' — ' + user.total_gc + ' pts';
   }
 }
 
@@ -680,7 +680,7 @@ function showTooltip(e, ms, user, done) {
   const tip = document.getElementById('tooltip');
   tip.innerHTML = `
     <div class="tooltip-name">${ms.icon} ${ms.name}</div>
-    <div class="tooltip-pts">${ms.points} GC</div>
+    <div class="tooltip-pts">${ms.points} pts</div>
     <div class="tooltip-type">${typeLabel(ms.type)} · ${done ? '✅ Completed' : '⬜ Not done'}</div>
     <div class="tooltip-type">${user.name}</div>
   `;
@@ -737,14 +737,14 @@ const TIER_PRIZES = {
     name:   'Platinum',
     prize:  '$50 Gift Card', emoji: '💳',
     prereq:  '🥇 Earn Gold first, then also:',
-    bullets: ['Complete a Persona Based Learning Path', 'Create a Case in Datadog', 'Invite a Team Member to Datadog'],
+    bullets: ['Complete a Persona Based Learning Path', 'Create a Case in Datadog'],
   },
 };
 
 const SPECIAL_PRIZES = [
   { icon: '🏆', label: 'First to reach Platinum',        prize: 'Exclusive Datadog Backpack' },
   { icon: '🤖', label: 'First Bits AI SRE Investigation', prize: 'Bits AI Collector\'s Badge'  },
-  { icon: '📊', label: 'Top GC Earner',                  prize: '$100 Gift Voucher'           },
+  { icon: '📊', label: 'Top Scorer',                  prize: '$100 Gift Voucher'           },
 ];
 
 function renderAwardsPanel() {
@@ -791,7 +791,7 @@ function renderAwardsPanel() {
           <span class="tier-name" style="color:${tier.color}">${tierName}</span>
           <span class="tier-prize">${p.emoji} ${p.prize}</span>
         </div>
-        <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} GC</span>
+        <span class="tier-gc" style="color:${tier.color}">+${tier.gc_bonus} pts</span>
       </div>
       ${p.prereq ? `<div class="tier-prereq">${p.prereq}</div>` : '<div class="tier-reqs-label">Complete all of:</div>'}
       <ul class="tier-bullets">${bulletHtml}</ul>
@@ -885,7 +885,7 @@ function renderScoreboard() {
     { label: 'Champions',       value: users.length,  cls: 'blue' },
     { label: 'Certified',       value: certCount,      cls: 'green' },
     { label: 'Platinum',        value: platCount,      cls: 'purple' },
-    { label: 'Total GC Awarded',value: totalGC.toLocaleString() + ' GC', cls: 'gold' },
+    { label: 'Total Points Awarded',value: totalGC.toLocaleString() + ' pts', cls: 'gold' },
   ];
 
   stats.forEach(s => {
@@ -901,10 +901,10 @@ function renderScoreboard() {
   const legend = document.createElement('div');
   legend.className = 'gc-legend';
   legend.innerHTML = `
-    <span class="gc-legend-title">GC Points by category:</span>
+    <span class="gc-legend-title">Points by category:</span>
     <span class="gc-lbl gc-lbl-core">📋 Core <span class="gc-legend-desc">— Audit Trail: dashboards, monitors, SLOs, notebooks, cases, Bits AI SRE</span></span>
     <span class="gc-lbl gc-lbl-manual">✍️ Manual <span class="gc-legend-desc">— Enablement sessions + Persona learning path</span></span>
-    <span class="gc-lbl gc-lbl-advance">📜 Advance <span class="gc-legend-desc">— Datadog certifications (500 GC each)</span></span>
+    <span class="gc-lbl gc-lbl-advance">📜 Advance <span class="gc-legend-desc">— Datadog certifications (500 pts each)</span></span>
     <span class="gc-lbl gc-lbl-bonus">🏅 Cert Bonus <span class="gc-legend-desc">— Bronze +200 · Silver +300 · Gold +400 · Platinum +500</span></span>
   `;
   container.appendChild(legend);
@@ -919,7 +919,7 @@ function renderScoreboard() {
   // Card 2: Certified Practitioners
   grid.appendChild(makeCertifiedCard(users));
 
-  // Card 3: Top GC Earners
+  // Card 3: Top Scorers
   grid.appendChild(makeTopGCCard(users));
 
   container.appendChild(grid);
@@ -959,10 +959,10 @@ function makeRankingsCard(users, total) {
       <div class="champion-info">
         <div class="champion-name">${user.name} ${c.icon}</div>
         <div class="gc-breakdown-bar" title="Core: ${bd.core} | Manual: ${bd.manual} | Advance: ${bd.advance} | Cert Bonus: ${bd.bonus}">
-          ${bd.core    > 0 ? `<div class="gc-seg gc-seg-core"    style="width:${seg(bd.core)}%"    title="Core: ${bd.core} GC"></div>`       : ''}
-          ${bd.manual  > 0 ? `<div class="gc-seg gc-seg-manual"  style="width:${seg(bd.manual)}%"  title="Manual: ${bd.manual} GC"></div>`    : ''}
-          ${bd.advance > 0 ? `<div class="gc-seg gc-seg-advance" style="width:${seg(bd.advance)}%" title="Advance: ${bd.advance} GC"></div>`  : ''}
-          ${bd.bonus   > 0 ? `<div class="gc-seg gc-seg-bonus"   style="width:${seg(bd.bonus)}%"   title="Cert Bonus: ${bd.bonus} GC"></div>` : ''}
+          ${bd.core    > 0 ? `<div class="gc-seg gc-seg-core"    style="width:${seg(bd.core)}%"    title="Core: ${bd.core} pts"></div>`       : ''}
+          ${bd.manual  > 0 ? `<div class="gc-seg gc-seg-manual"  style="width:${seg(bd.manual)}%"  title="Manual: ${bd.manual} pts"></div>`    : ''}
+          ${bd.advance > 0 ? `<div class="gc-seg gc-seg-advance" style="width:${seg(bd.advance)}%" title="Advance: ${bd.advance} pts"></div>`  : ''}
+          ${bd.bonus   > 0 ? `<div class="gc-seg gc-seg-bonus"   style="width:${seg(bd.bonus)}%"   title="Cert Bonus: ${bd.bonus} pts"></div>` : ''}
         </div>
         <div class="gc-breakdown-labels">
           ${bd.core    > 0 ? `<span class="gc-lbl gc-lbl-core">📋 ${bd.core}</span>`        : ''}
@@ -971,7 +971,7 @@ function makeRankingsCard(users, total) {
           ${bd.bonus   > 0 ? `<span class="gc-lbl gc-lbl-bonus">🏅 ${bd.bonus}</span>`      : ''}
         </div>
       </div>
-      <div class="champion-gc">${totalGC.toLocaleString()}<span class="gc-unit"> GC</span></div>
+      <div class="champion-gc">${totalGC.toLocaleString()}<span class="gc-unit"> pts</span></div>
     `;
     card.appendChild(row);
   });
@@ -1021,7 +1021,7 @@ function makeCertifiedCard(users) {
 function makeTopGCCard(users) {
   const card = document.createElement('div');
   card.className = 'score-card';
-  card.innerHTML = `<div class="score-card-title">💰 Top GC Earners</div>`;
+  card.innerHTML = `<div class="score-card-title">💰 Top Scorers</div>`;
 
   users.slice(0, 8).forEach((user, idx) => {
     const c = certLabel(user.certification);
@@ -1049,7 +1049,7 @@ function makeTopGCCard(users) {
         <div class="champion-bar-bg">
           <div class="champion-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,#b7791f,#f0b429)"></div>
         </div>
-        <div class="champion-bar-pct" style="color:#b7791f">${user.total_gc.toLocaleString()} GC</div>
+        <div class="champion-bar-pct" style="color:#b7791f">${user.total_gc.toLocaleString()} pts</div>
       </div>
     `;
     card.appendChild(row);
